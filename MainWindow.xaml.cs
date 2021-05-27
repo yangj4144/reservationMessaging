@@ -25,13 +25,16 @@ namespace hotel
     /// </summary>
     public partial class MainWindow : Window
     {
-
+        // list of guests
         List<Guest> Guests = new List<Guest>();
 
+        // list of hotel/company names
         List<Company> Hotels = new List<Company>();
 
+        // list of guest names only
         List<String> guestNames = new List<String>();
 
+        // list of hotel names only
         List<String> companyNames = new List<string>();
 
         public MainWindow()
@@ -48,28 +51,29 @@ namespace hotel
 
 
 
-
+            // read json file
             var guestJson = File.ReadAllText(projectDirectory + "/appfiles/Guests.json");
+            // guests list
             var guestsCollection = JsonConvert.DeserializeObject<IList<Guest>>(guestJson);
-                       
 
+            // local guest list to global list
             this.Guests = (List<Guest>)guestsCollection;
 
-
+            // set list box in gui
             LstGreet.ItemsSource = this.Guests;
 
-         
 
+            // read json file
             var jsonText = File.ReadAllText(projectDirectory + "/appfiles/Companies.json");
+            // create local list of company objects
             var companies = JsonConvert.DeserializeObject<IList<Company>>(jsonText);
 
+            // convert to global company list
             this.Hotels = (List<Company>)companies;
 
 
-           // LstCompany.ItemsSource = companies;
 
-            //boxGuest.ItemsSource = typeof(Guest).GetProperties();
-
+            // loop through all guests and get first and last names, then convert to name only list
             foreach (Guest guest in this.Guests)
             {
                 string tempName = "";
@@ -77,6 +81,7 @@ namespace hotel
                 this.guestNames.Add(tempName);
             }
 
+            // looop through all companies and get name of the company and add to company  name only list
             foreach (Company company in this.Hotels)
             {
                 string tempName = "";
@@ -85,7 +90,7 @@ namespace hotel
             }
 
 
-
+            // set drop down list for guest names and company names
             boxGuest.ItemsSource = this.guestNames;
             boxCompany.ItemsSource = this.companyNames;
 
@@ -93,51 +98,66 @@ namespace hotel
 
         }
 
-        
-
-        private void ButtonAddName_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Convert Epoch to date time
+        /// </summary>
+        /// <param name="epochValue"></param>
+        /// <returns></returns>
+        public DateTime convertEpochTime(int epochValue)
         {
-           
+            DateTime convertedDate = new DateTime();
+
+            DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            epoch = epoch.AddMilliseconds(epochValue);
+
+
+
+
+            return epoch;
         }
 
-        private void lstNames_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            
-        }
 
-        private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
 
-        }
 
-        private void LstGreet_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
+        /// <summary>
+        /// button click for list, using auto generated formatting
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void guestClick_Click(object sender, RoutedEventArgs e)
         {
+            // guest list
             List<Guest> selectedGuest = this.Guests;
 
 
+            // get current selected guest from list
+            var currentGuest = LstGreet.SelectedItem;
 
-           var currentGuest = LstGreet.SelectedItem;
 
-            
-
+            // if check not null
             if (currentGuest != null)
             {
+                // to string guest
                 string guestString = currentGuest.ToString();
 
 
-
+                // loop through all guests in the guest list
                 foreach (Guest guest in this.Guests)
                 {
-                    if ( guestString.Contains(guest.FirstName + " " + guest.LastName)== true)
+                    // if first name and last name match in guest list found
+                    if (guestString.Contains(guest.FirstName + " " + guest.LastName) == true)
                     {
-                        string greetGuest = "(Good morning)" + guest.FirstName + " " + guest.LastName + ", and welcome to" + "(HOTEL COMPANY) room " + guest.Reservation.RoomNumber + " is now ready you.Enjoy your stay, and let us know if you need anything.";
+                        // convert time
+                        DateTime convertDate = this.convertEpochTime(guest.Reservation.StartTimestamp);
+                        //convertDate = convertDate + TimeSpan.Parse(string.Format("{0:HH:mm}", convertDate)); // trim to minute
 
+                        string hour = convertDate.ToString("%h tt");
 
+                        string timeGreeting = "";
+
+                        // greet guest using guest values.
+                        string greetGuest = "Good Morning" +
+                        " " + guest.FirstName + " " + guest.LastName + ", room " + guest.Reservation.RoomNumber + " is now ready you. Enjoy your stay, and let us know if you need anything.";
 
                         MessageBox.Show(greetGuest);
                     }
@@ -161,23 +181,32 @@ namespace hotel
 
         }
 
-       
 
+
+        /// <summary>
+        /// custom greet guest button click
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void customMsg_Click(object sender, RoutedEventArgs e)
         {
+            // get selected guest from drop down list
             string customGuest = boxGuest.Text;
 
+            // get selected company from drop down list
             string customCompany = boxCompany.Text;
 
-            if (customGuest != null && customCompany != null)
+            // Null checks
+            if (customGuest != null || customCompany != null)
             {
+                // greet customer using selected values from drop down lists.
                 string customGreet = $"Good Morning {customGuest}, and welcome to {customCompany}. Enjoy your stay, and let us know if you need anything.";
                 MessageBox.Show(customGreet);
             }
             else MessageBox.Show("Plese select a guest and hotel first.");
-            
 
-            
+
+
         }
     }
 }
