@@ -1,5 +1,8 @@
-# reservation Messaging
-messages a guest about their reservation made at a hotel
+# reservation Messaging using WPF
+
+MainWindow.xaml.cs is the main file to look at and contains all the logic.
+
+This application messages a guest about their reservation made at a hotel
 
 This application has 2 main parts to it.  On the left hand side of the application, a list of all the guests and their information is displayed to the user.
 
